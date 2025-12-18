@@ -8,24 +8,20 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="dbup-sqlserver" Version="6.0.16" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.1">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.1">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Controllers/" />
     <Folder Include="Controllers/Note/" />
-    <Folder Include="Data/" />
+    <Folder Include="Data/Migrations/" />
     <Folder Include="Models/" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Data/Migrations/**/*.sql" />
   </ItemGroup>
 
 </Project>
