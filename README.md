@@ -7,3 +7,9 @@ docker compose up -d
 ```bash
 dotnet run --project WebApi
 ```
+
+# Update and running front site
+```bash
+npm install
+npm run dev
+```
