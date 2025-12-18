@@ -22,18 +22,23 @@ namespace WebApi.Controllers.NoteHandler
 
         [HttpGet(Name = "GetNotes")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<NoteRequest>>> Handle()
+        public async Task<ActionResult<NoteListResponse>> Handle()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
 
-            var notes = await _connection.QueryAsync<NoteRequest>(
+            var notes = await _connection.QueryAsync<Note>(
                 "SELECT Id, Title, Content, CreatedAt, UpdatedAt FROM Notes WHERE UserId = @UserId",
                 new { UserId = int.Parse(userIdClaim.Value) }
             );
 
-            return Ok(notes);
+            return Ok(new NoteListResponse(notes.Select(note => new NoteResponse(note))));
         }
 
-        public record NoteRequest(int Id, string Title, string Content, DateTime CreatedAt, DateTime UpdatedAt);
+        public record NoteResponse(int Id, string Title, string? Content, DateTime CreatedAt)
+        {
+            public NoteResponse(Note note) : this(note.Id, note.Title, note.Content, note.CreatedAt) { }
+        };
+
+        public record NoteListResponse(IEnumerable<NoteResponse> Notes);
     }
 }
