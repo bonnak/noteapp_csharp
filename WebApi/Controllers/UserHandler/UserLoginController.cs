@@ -6,7 +6,7 @@ using WebApi.Services;
 
 namespace WebApi.Controllers.UserHandler
 {
-    [Route("api/users/login")]
+    [Route("api/login")]
     [ApiController]
     public class UserLoginController : ControllerBase
     {
@@ -20,7 +20,7 @@ namespace WebApi.Controllers.UserHandler
         }
 
         [HttpPost(Name = "LoginUser")]
-        public async Task<IActionResult> handle([FromBody] LoginUserRequest request)
+        public async Task<IActionResult> Handle([FromBody] LoginUserRequest request)
         {
             var validationErrors = new Dictionary<string, string>();
             if (string.IsNullOrWhiteSpace(request.Username))
@@ -48,7 +48,7 @@ namespace WebApi.Controllers.UserHandler
             }
 
             var token = _jwtService.GenerateToken(1, request.Username);
-            
+
             return Ok(new { Message = "Login successful", Token = token });
 
         }

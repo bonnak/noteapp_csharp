@@ -16,7 +16,7 @@ namespace WebApi.Controllers.NoteHandler
         }
 
         [HttpGet(Name = "GetNotes")]
-        public IEnumerable<NoteDto> Get()
+        public IEnumerable<NoteDto> Handle()
         {
             return Enumerable.Range(1, 5).Select(index =>
                 new NoteDto

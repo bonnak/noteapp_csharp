@@ -18,7 +18,7 @@ namespace WebApi.Controllers.UserHandler
         }
 
         [HttpPost(Name = "CreateUser")]
-        public async Task<IActionResult> Create([FromBody] CreateUserRequest request)
+        public async Task<IActionResult> Handle([FromBody] CreateUserRequest request)
         {
             var validationErrors = new Dictionary<string, string>();
             if (string.IsNullOrWhiteSpace(request.Username))
@@ -53,7 +53,7 @@ namespace WebApi.Controllers.UserHandler
             var newId = await _connection.ExecuteScalarAsync<int>(sql, newUser);
             newUser.Id = newId;
 
-            return CreatedAtAction(nameof(Create), new { id = newId }, newUser);
+            return CreatedAtAction(nameof(Handle), new { id = newId }, newUser);
         }
 
         public record CreateUserRequest(string Username, string Password);
