@@ -15,8 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers/" />
-    <Folder Include="Controllers/Note/" />
+    <Folder Include="Controllers/NoteHandler/" />
     <Folder Include="Controllers/UserHandler/" />
     <Folder Include="Data/Migrations/" />
     <Folder Include="Models/" />

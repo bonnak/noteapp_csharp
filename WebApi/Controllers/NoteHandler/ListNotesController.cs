@@ -2,7 +2,7 @@ using System.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace WebApi.Controllers.Note
+namespace WebApi.Controllers.NoteHandler
 {
     [Route("api/notes")]
     [ApiController]

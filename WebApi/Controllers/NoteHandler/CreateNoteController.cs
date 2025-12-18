@@ -2,9 +2,9 @@ using System.Data;
 using Dapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using NoteModel = WebApi.Models.Note;
+using WebApi.Models;
 
-namespace WebApi.Controllers.Note
+namespace WebApi.Controllers.NoteHandler
 {
     [Route("api/notes")]
     [ApiController]
@@ -38,7 +38,7 @@ namespace WebApi.Controllers.Note
                 SELECT CAST(SCOPE_IDENTITY() as int);
             ";
 
-            var newNote = new NoteModel
+            var newNote = new Note
             {
                 Title = request.Title,
                 Content = request.Content,
