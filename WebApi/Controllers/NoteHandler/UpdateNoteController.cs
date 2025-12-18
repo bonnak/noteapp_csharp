@@ -24,6 +24,17 @@ namespace WebApi.Controllers.NoteHandler
         [Authorize]
         public async Task<ActionResult<UpdateNoteResponse>> Handle([FromBody] UpdateNoteRequest request)
         {
+            var validationErrors = new Dictionary<string, string>();
+            if (string.IsNullOrWhiteSpace(request.Title))
+            {
+                validationErrors["title"] = "Title is required.";
+            }
+
+            if (validationErrors.Count > 0)
+            {
+                return BadRequest(new { Title = "Validation Error", Errors = validationErrors });
+            }
+            
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = int.Parse(userIdClaim.Value);
 
