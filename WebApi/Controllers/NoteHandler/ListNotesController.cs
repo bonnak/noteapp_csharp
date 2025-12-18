@@ -27,16 +27,16 @@ namespace WebApi.Controllers.NoteHandler
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
 
             var notes = await _connection.QueryAsync<Note>(
-                "SELECT Id, Title, Content, CreatedAt, UpdatedAt FROM Notes WHERE UserId = @UserId",
+                "SELECT Id, Title, Content, CreatedAt, UpdatedAt FROM Notes WHERE UserId = @UserId ORDER BY Id DESC",
                 new { UserId = int.Parse(userIdClaim.Value) }
             );
 
             return Ok(new NoteListResponse(notes.Select(note => new NoteResponse(note))));
         }
 
-        public record NoteResponse(int Id, string Title, string? Content, DateTime CreatedAt)
+        public record NoteResponse(int Id, string Title, DateTime CreatedAt)
         {
-            public NoteResponse(Note note) : this(note.Id, note.Title, note.Content, note.CreatedAt) { }
+            public NoteResponse(Note note) : this(note.Id, note.Title, note.CreatedAt) { }
         };
 
         public record NoteListResponse(IEnumerable<NoteResponse> Notes);
