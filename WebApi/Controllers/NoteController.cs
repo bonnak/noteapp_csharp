@@ -39,12 +39,12 @@ namespace WebApi.Controllers
             var validationErrors = new Dictionary<string, string>();
             if (string.IsNullOrWhiteSpace(request.Title))
             {
-                validationErrors["Title"] = "Title is required.";
+                validationErrors["title"] = "Title is required.";
             }
 
             if (string.IsNullOrWhiteSpace(request.Content))
             {
-                validationErrors["Content"] = "Content is required.";
+                validationErrors["content"] = "Content is required.";
             }
 
             if(validationErrors.Count > 0)
@@ -69,7 +69,7 @@ namespace WebApi.Controllers
             var newId = await _connection.ExecuteScalarAsync<int>(sql, newNote);
             newNote.Id = newId;
 
-            return CreatedAtAction(nameof(Get), new { id = newId }, newNote);
+            return CreatedAtAction(nameof(Create), new { id = newId }, newNote);
         }
 
         public record CreateNoteRequest(string Title, string Content);
