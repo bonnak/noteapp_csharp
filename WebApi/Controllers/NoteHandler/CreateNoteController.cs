@@ -34,6 +34,7 @@ namespace WebApi.Controllers.NoteHandler
             }
 
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = int.Parse(userIdClaim.Value);
 
             var sql = @"
                 INSERT INTO Notes (Title, Content, CreatedAt, UpdatedAt, UserId)
@@ -47,11 +48,18 @@ namespace WebApi.Controllers.NoteHandler
                 Content = request.Content,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                UserId = int.Parse(userIdClaim.Value)
+                UserId = userId
             };
 
             var newId = await _connection.ExecuteScalarAsync<int>(sql, newNote);
-            newNote.Id = newId;
+            
+            newNote = await _connection.QuerySingleOrDefaultAsync<Note>(
+                "SELECT Id, Title, Content, CreatedAt, UpdatedAt FROM Notes WHERE Id = @Id AND UserId = @UserId",
+                new { 
+                    Id = newId,
+                    UserId = userId
+                }
+            );
 
             return CreatedAtAction(nameof(Handle), new { id = newId }, new CreateNoteResponseWrapper(new CreateNoteResponse(newNote)));
         }
