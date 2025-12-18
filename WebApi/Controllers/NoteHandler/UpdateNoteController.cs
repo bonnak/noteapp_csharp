@@ -34,7 +34,7 @@ namespace WebApi.Controllers.NoteHandler
             {
                 return BadRequest(new { Title = "Validation Error", Errors = validationErrors });
             }
-            
+
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = int.Parse(userIdClaim.Value);
 
@@ -81,9 +81,9 @@ namespace WebApi.Controllers.NoteHandler
         }
 
         public record UpdateNoteRequest(string Title, string Content);
-        public record UpdateNoteResponse(int Id, string Title, string? Content)
+        public record UpdateNoteResponse(int Id, string Title, string? Content, DateTime CreatedAt, DateTime UpdatedAt)
         {
-            public UpdateNoteResponse(Note note) : this(note.Id, note.Title, note.Content) { }
+            public UpdateNoteResponse(Note note) : this(note.Id, note.Title, note.Content, note.CreatedAt, note.UpdatedAt) { }
         };
         public record UpdateNoteResponseWrapper(UpdateNoteResponse Note, bool updated);
     }

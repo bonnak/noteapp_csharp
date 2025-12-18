@@ -57,9 +57,9 @@ namespace WebApi.Controllers.NoteHandler
         }
 
         public record CreateNoteRequest(string Title, string Content);
-        public record CreateNoteResponse(int Id, string Title, string? Content)
+        public record CreateNoteResponse(int Id, string Title, string? Content, DateTime CreatedAt, DateTime UpdatedAt)
         {
-            public CreateNoteResponse(Note note) : this(note.Id, note.Title, note.Content) { }
+            public CreateNoteResponse(Note note) : this(note.Id, note.Title, note.Content, note.CreatedAt, note.UpdatedAt) { }
         };
         public record CreateNoteResponseWrapper(CreateNoteResponse Note);
     }
