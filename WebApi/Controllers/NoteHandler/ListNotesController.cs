@@ -22,7 +22,7 @@ namespace WebApi.Controllers.NoteHandler
 
         [HttpGet(Name = "GetNotes")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<NoteDto>>> Handle()
+        public async Task<ActionResult<IEnumerable<NoteRequest>>> Handle()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
 
@@ -36,7 +36,7 @@ namespace WebApi.Controllers.NoteHandler
                 return BadRequest(new { message = "Invalid User ID format in token." });
             }
 
-            var notes = await _connection.QueryAsync<NoteDto>(
+            var notes = await _connection.QueryAsync<NoteRequest>(
                 "SELECT Id, Title, Content, CreatedAt, UpdatedAt FROM Notes WHERE UserId = @UserId",
                 new { UserId = userId }
             );
@@ -44,6 +44,6 @@ namespace WebApi.Controllers.NoteHandler
             return Ok(notes);
         }
 
-        public record NoteDto(int Id, string Title, string Content, DateTime CreatedAt, DateTime UpdatedAt);
+        public record NoteRequest(int Id, string Title, string Content, DateTime CreatedAt, DateTime UpdatedAt);
     }
 }

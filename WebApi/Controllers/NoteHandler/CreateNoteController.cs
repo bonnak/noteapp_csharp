@@ -22,7 +22,6 @@ namespace WebApi.Controllers.NoteHandler
         [Authorize]
         public async Task<IActionResult> Handle([FromBody] CreateNoteRequest request)
         {
-            // 1. Validation
             var validationErrors = new Dictionary<string, string>();
             if (string.IsNullOrWhiteSpace(request.Title))
             {
@@ -64,9 +63,13 @@ namespace WebApi.Controllers.NoteHandler
             var newId = await _connection.ExecuteScalarAsync<int>(sql, newNote);
             newNote.Id = newId;
 
-            return CreatedAtRoute("GetNoteById", new { id = newId }, newNote);
+            return CreatedAtAction(nameof(Handle), new { id = newId }, new { note = new CreateNoteResponse(newNote)});
         }
 
         public record CreateNoteRequest(string Title, string Content);
+        public record CreateNoteResponse(int Id, string Title, string Content, DateTime CreatedAt, DateTime UpdatedAt)
+        {
+            public CreateNoteResponse(Note note) : this(note.Id, note.Title, note.Content, note.CreatedAt, note.UpdatedAt) { }
+        };
     }
 }
