@@ -36,9 +36,20 @@ namespace WebApi.Controllers
         [HttpPost(Name = "CreateNote")]
         public async Task<IActionResult> Create([FromBody] CreateNoteRequest request)
         {
+            var validationErrors = new Dictionary<string, string>();
             if (string.IsNullOrWhiteSpace(request.Title))
             {
-                return BadRequest("Title is required.");
+                validationErrors["Title"] = "Title is required.";
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Content))
+            {
+                validationErrors["Content"] = "Content is required.";
+            }
+
+            if(validationErrors.Count > 0)
+            {
+                return BadRequest(new { Title = "Validation Error", Errors = validationErrors });
             }
 
             var sql = @"
