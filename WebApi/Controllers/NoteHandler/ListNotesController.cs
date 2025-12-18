@@ -24,21 +24,11 @@ namespace WebApi.Controllers.NoteHandler
         [Authorize]
         public async Task<ActionResult<IEnumerable<NoteRequest>>> Handle()
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
-
-            if (userIdClaim == null)
-            {
-                return Unauthorized(new { message = "User ID claim not found in token." });
-            }
-
-            if (!int.TryParse(userIdClaim.Value, out int userId))
-            {
-                return BadRequest(new { message = "Invalid User ID format in token." });
-            }
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
 
             var notes = await _connection.QueryAsync<NoteRequest>(
                 "SELECT Id, Title, Content, CreatedAt, UpdatedAt FROM Notes WHERE UserId = @UserId",
-                new { UserId = userId }
+                new { UserId = int.Parse(userIdClaim.Value) }
             );
 
             return Ok(notes);

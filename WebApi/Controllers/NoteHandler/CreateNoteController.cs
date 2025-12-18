@@ -33,17 +33,7 @@ namespace WebApi.Controllers.NoteHandler
                 return BadRequest(new { Title = "Validation Error", Errors = validationErrors });
             }
 
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
-            
-            if (userIdClaim == null)
-            {
-                return Unauthorized(new { message = "User ID claim not found in token." });
-            }
-
-            if (!int.TryParse(userIdClaim.Value, out int userId))
-            {
-                return BadRequest(new { message = "Invalid User ID format in token." });
-            }
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
 
             var sql = @"
                 INSERT INTO Notes (Title, Content, CreatedAt, UpdatedAt, UserId)
@@ -57,7 +47,7 @@ namespace WebApi.Controllers.NoteHandler
                 Content = request.Content,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                UserId = userId
+                UserId = int.Parse(userIdClaim.Value)
             };
 
             var newId = await _connection.ExecuteScalarAsync<int>(sql, newNote);
@@ -67,9 +57,9 @@ namespace WebApi.Controllers.NoteHandler
         }
 
         public record CreateNoteRequest(string Title, string Content);
-        public record CreateNoteResponse(int Id, string Title, string Content, DateTime CreatedAt, DateTime UpdatedAt)
+        public record CreateNoteResponse(int Id, string Title, string? Content)
         {
-            public CreateNoteResponse(Note note) : this(note.Id, note.Title, note.Content, note.CreatedAt, note.UpdatedAt) { }
+            public CreateNoteResponse(Note note) : this(note.Id, note.Title, note.Content) { }
         };
     }
 }
