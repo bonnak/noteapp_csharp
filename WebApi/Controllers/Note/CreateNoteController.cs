@@ -2,35 +2,20 @@ using System.Data;
 using Dapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using WebApi.Models;
+using NoteModel = WebApi.Models.Note;
 
-namespace WebApi.Controllers
+namespace WebApi.Controllers.Note
 {
     [Route("api/notes")]
     [ApiController]
-    public class NoteController : ControllerBase
+    public class CreateNoteController : ControllerBase
     {
+        
         private readonly IDbConnection _connection;
 
-        public NoteController(IDbConnection connection)
+        public CreateNoteController(IDbConnection connection)
         {
             _connection = connection;
-        }
-
-        [HttpGet(Name = "GetNotes")]
-        public IEnumerable<NoteDto> Get()
-        {
-            return Enumerable.Range(1, 5).Select(index =>
-                new NoteDto
-                (
-                    Title: $"Note {index}",
-                    Content: "This is a sample note content."
-                ))
-                .ToArray();
-        }
-
-        public record NoteDto(string Title, string Content)
-        {
         }
 
         [HttpPost(Name = "CreateNote")]
@@ -58,7 +43,7 @@ namespace WebApi.Controllers
                 SELECT CAST(SCOPE_IDENTITY() as int);
             ";
 
-            var newNote = new Note
+            var newNote = new NoteModel
             {
                 Title = request.Title,
                 Content = request.Content,
