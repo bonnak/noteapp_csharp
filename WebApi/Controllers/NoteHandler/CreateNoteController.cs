@@ -53,7 +53,7 @@ namespace WebApi.Controllers.NoteHandler
             var newId = await _connection.ExecuteScalarAsync<int>(sql, newNote);
             newNote.Id = newId;
 
-            return CreatedAtAction(nameof(Handle), new { id = newId }, new { note = new CreateNoteResponse(newNote)});
+            return CreatedAtAction(nameof(Handle), new { id = newId }, new CreateNoteResponseWrapper(new CreateNoteResponse(newNote)));
         }
 
         public record CreateNoteRequest(string Title, string Content);
@@ -61,5 +61,6 @@ namespace WebApi.Controllers.NoteHandler
         {
             public CreateNoteResponse(Note note) : this(note.Id, note.Title, note.Content) { }
         };
+        public record CreateNoteResponseWrapper(CreateNoteResponse Note);
     }
 }
