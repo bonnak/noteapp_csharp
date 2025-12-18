@@ -1,6 +1,11 @@
 using System.Data;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Dapper;
+using WebApi.Models;
 
 namespace WebApi.Controllers.NoteHandler
 {
@@ -16,19 +21,29 @@ namespace WebApi.Controllers.NoteHandler
         }
 
         [HttpGet(Name = "GetNotes")]
-        public IEnumerable<NoteDto> Handle()
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<NoteDto>>> Handle()
         {
-            return Enumerable.Range(1, 5).Select(index =>
-                new NoteDto
-                (
-                    Title: $"Note {index}",
-                    Content: "This is a sample note content."
-                ))
-                .ToArray();
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
+
+            if (userIdClaim == null)
+            {
+                return Unauthorized(new { message = "User ID claim not found in token." });
+            }
+
+            if (!int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return BadRequest(new { message = "Invalid User ID format in token." });
+            }
+
+            var notes = await _connection.QueryAsync<NoteDto>(
+                "SELECT Id, Title, Content, CreatedAt, UpdatedAt FROM Notes WHERE UserId = @UserId",
+                new { UserId = userId }
+            );
+
+            return Ok(notes);
         }
 
-        public record NoteDto(string Title, string Content)
-        {
-        }
+        public record NoteDto(int Id, string Title, string Content, DateTime CreatedAt, DateTime UpdatedAt);
     }
 }

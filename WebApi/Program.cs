@@ -1,8 +1,10 @@
 using System.Data;
+using System.Security.Claims;
 using System.Text;
 using DbUp;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Data.SqlClient;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using WebApi.Services;
 
@@ -24,32 +26,39 @@ builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
 
-var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
     .AddJwtBearer(options =>
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSettings["Issuer"],
-            ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]))
-        };
+        options.TokenValidationParameters.ValidIssuer = builder.Configuration["Jwt:Issuer"];
+        options.TokenValidationParameters.ValidAudience = builder.Configuration["Jwt:Audience"];
+        options.TokenValidationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!));
     });
+
+builder.Services.AddAuthorization();
+
 builder.Services.AddScoped<JwtService>();
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
+    IdentityModelEventSource.ShowPII = true;
+    IdentityModelEventSource.LogCompleteSecurityArtifact = true;
+
     app.MapOpenApi();
 }
 
+app.MapControllers();
+
 app.UseHttpsRedirection();
 
-app.MapControllers();
+app.UseAuthentication();
+
+app.UseAuthorization();
 
 app.Run();

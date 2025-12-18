@@ -2,6 +2,7 @@ using System.Data;
 using Dapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.Models;
 using WebApi.Services;
 
 namespace WebApi.Controllers.UserHandler
@@ -38,16 +39,16 @@ namespace WebApi.Controllers.UserHandler
                 return BadRequest(new { Title = "Validation Error", Errors = validationErrors });
             }
 
-            var hashedPassword = await _connection.QuerySingleOrDefaultAsync<string>(
-                "SELECT PasswordHash FROM Users WHERE Username = @Username", 
+            var user = await _connection.QuerySingleOrDefaultAsync<User>(
+                "SELECT * FROM Users WHERE Username = @Username", 
                 new { Username = request.Username }
             );
-            if (!BCrypt.Net.BCrypt.Verify(request.Password, hashedPassword))
+            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             {
                 return Unauthorized(new { Message = "Invalid username or password" });
             }
 
-            var token = _jwtService.GenerateToken(1, request.Username);
+            var token = _jwtService.GenerateToken(user);
 
             return Ok(new { Message = "Login successful", Token = token });
 
