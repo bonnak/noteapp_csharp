@@ -27,11 +27,6 @@ namespace WebApi.Controllers.Note
                 validationErrors["title"] = "Title is required.";
             }
 
-            if (string.IsNullOrWhiteSpace(request.Content))
-            {
-                validationErrors["content"] = "Content is required.";
-            }
-
             if(validationErrors.Count > 0)
             {
                 return BadRequest(new { Title = "Validation Error", Errors = validationErrors });
