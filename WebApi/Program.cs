@@ -3,19 +3,22 @@ using DbUp;
 using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddControllers();
-builder.Services.AddOpenApi();
-builder.Services.AddTransient<IDbConnection>(sp => 
-    new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
-  
-var app = builder.Build();
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+EnsureDatabase.For.SqlDatabase(connectionString);
 
 var dbMigrator = DeployChanges.To
-    .SqlDatabase(builder.Configuration.GetConnectionString("DefaultConnection"))
+    .SqlDatabase(connectionString)
     .WithScriptsEmbeddedInAssembly(System.Reflection.Assembly.GetExecutingAssembly())
     .LogToConsole()
     .Build();
 dbMigrator.PerformUpgrade();
+
+builder.Services.AddTransient<IDbConnection>(sp => new SqlConnection(connectionString));
+builder.Services.AddControllers();
+builder.Services.AddOpenApi();
+
+var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
@@ -24,5 +27,4 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.MapControllers();
-
 app.Run();
