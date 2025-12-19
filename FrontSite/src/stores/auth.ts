@@ -15,13 +15,14 @@ interface LoginResponse {
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(localStorage.getItem('token'))
   const user = ref<User | null>(null)
-  const loading = ref(false)
-  const error = ref<string | null>(null)
+  const waiting = ref(false)
+  const errMessage = ref<string | null>(null)
+  const inputErrors = ref<Record<string, string[]>>({})
   const isAuthenticated = computed(() => !!token.value)
 
   async function login(username: string, password: string) {
-    loading.value = true
-    error.value = null
+    waiting.value = true
+    errMessage.value = null
 
     try {
       const response = await fetch(`${API_URL}/login`, {
@@ -32,19 +33,26 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (!response.ok) {
         const errData = await response.json()
-        throw new Error(errData.message || 'Login failed')
+        errMessage.value = errData.message || 'Login failed'
+        if (errData.errors) {
+          inputErrors.value = errData.errors
+        }
+        waiting.value = false
+        return
       }
 
       const data: LoginResponse = await response.json()
 
       token.value = data.token
-
       localStorage.setItem('token', data.token)
-    } catch (err: any) {
-      error.value = err.message
-      throw err
-    } finally {
-      loading.value = false
+
+      waiting.value = false
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        errMessage.value = err.message || 'Unknown error occurred'
+      }
+
+      waiting.value = false
     }
   }
 
@@ -64,8 +72,9 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     token,
     user,
-    loading,
-    error,
+    waiting,
+    errMessage,
+    inputErrors,
     isAuthenticated,
     login,
     logout,

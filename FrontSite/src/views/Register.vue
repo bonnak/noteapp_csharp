@@ -39,9 +39,9 @@ async function handleRegister() {
     }
 
     router.push('/login')
-  } catch (e: unknown) {
-    if (e instanceof Error) {
-      errMessage.value = e.message || 'Unknown error occurred'
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      errMessage.value = err.message || 'Unknown error occurred'
     }
 
     waiting.value = false
