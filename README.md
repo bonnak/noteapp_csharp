@@ -1,6 +1,6 @@
 # Up and running Mssql Server
 ```bash
-docker compose up -d 
+docker compose up -d db
 ```
 
 # Up and running web api
