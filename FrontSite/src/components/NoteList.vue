@@ -132,7 +132,7 @@ function editNote(note: Note) {
           <span>{{ new Date(note.createdAt).toLocaleDateString() }}</span>
 
           <div class="space-x-2">
-            <button class="text-teal-500 hover:text-teal-700 font-medium" @click="editNote(note)">
+            <button class="cursor-pointer text-teal-500 hover:text-teal-700 font-medium" @click="editNote(note)">
               Edit
             </button>
           </div>
