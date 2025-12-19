@@ -45,7 +45,7 @@ namespace WebApi.Controllers.UserHandler
             );
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             {
-                return Unauthorized(new { Message = "Invalid username or password" });
+                return BadRequest(new { Message = "Invalid username or password" });
             }
 
             var token = _jwtService.GenerateToken(user);
