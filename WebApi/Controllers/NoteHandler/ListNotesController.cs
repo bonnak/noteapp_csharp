@@ -23,12 +23,22 @@ namespace WebApi.Controllers.NoteHandler
         [HttpGet(Name = "GetNotes")]
         [Authorize]
         public async Task<ActionResult<NoteListResponse>> Handle()
-        {
+        {   
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = int.Parse(userIdClaim.Value);
+            var q = HttpContext.Request.Query["q"].ToString();
 
-            var notes = await _connection.QueryAsync<Note>(
-                "SELECT Id, Title, Content, CreatedAt, UpdatedAt FROM Notes WHERE UserId = @UserId ORDER BY Id DESC",
-                new { UserId = int.Parse(userIdClaim.Value) }
+            string sql = "SELECT Id, Title, Content, CreatedAt, UpdatedAt FROM Notes WHERE UserId = @UserId";
+            object queryParams = new { UserId = userId };
+
+            if (!string.IsNullOrEmpty(q))
+            {
+                sql += " AND Title LIKE @SearchQuery";
+                queryParams = new { UserId = userId, SearchQuery = $"%{q}%" };
+            }
+            sql += " ORDER BY Id DESC";
+            var notes = await _connection.QueryAsync<Note>(sql,
+                queryParams
             );
 
             return Ok(new NoteListResponse(notes.Select(note => new NoteResponse(note))));
