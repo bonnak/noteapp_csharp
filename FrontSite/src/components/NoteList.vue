@@ -129,7 +129,7 @@ function editNote(note: Note) {
         <div
           class="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400"
         >
-          <span>{{ new Date(note.createdAt).toLocaleDateString() }}</span>
+          <span>{{ new Date(note.createdAt).toLocaleDateString() }} {{ new Date(note.createdAt).toLocaleTimeString() }}</span>
 
           <div class="space-x-2">
             <button class="cursor-pointer text-teal-500 hover:text-teal-700 font-medium" @click="editNote(note)">
