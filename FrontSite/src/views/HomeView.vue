@@ -32,7 +32,7 @@ function closeNoteEditModal() {
   <main>
     <NoteList @edit-note="openNoteEditModal" />
 
-    <div class="flex px-6">
+    <div class="max-w-5xl mx-auto p-6 mt-4">
       <div class="flex-grow"></div>
       <button
         type="button"
