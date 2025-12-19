@@ -38,9 +38,8 @@ export const useAuthStore = defineStore('auth', () => {
       const data: LoginResponse = await response.json()
 
       token.value = data.token
-      
-      localStorage.setItem('token', data.token)
 
+      localStorage.setItem('token', data.token)
     } catch (err: any) {
       error.value = err.message
       throw err
@@ -62,14 +61,14 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { 
-    token, 
-    user, 
-    loading, 
-    error, 
-    isAuthenticated, 
-    login, 
+  return {
+    token,
+    user,
+    loading,
+    error,
+    isAuthenticated,
+    login,
     logout,
-    initialize 
+    initialize,
   }
 })

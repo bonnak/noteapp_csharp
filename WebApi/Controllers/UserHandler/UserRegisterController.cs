@@ -6,13 +6,13 @@ using WebApi.Models;
 
 namespace WebApi.Controllers.UserHandler
 {
-    [Route("api/users")]
+    [Route("api/register")]
     [ApiController]
-    public class CreateUserController : ControllerBase
+    public class UserRegisterController : ControllerBase
     {
         private readonly IDbConnection _connection;
 
-        public CreateUserController(IDbConnection connection)
+        public UserRegisterController(IDbConnection connection)
         {
             _connection = connection;
         }
@@ -20,20 +20,25 @@ namespace WebApi.Controllers.UserHandler
         [HttpPost(Name = "CreateUser")]
         public async Task<IActionResult> Handle([FromBody] CreateUserRequest request)
         {
-            var validationErrors = new Dictionary<string, string>();
+            var validationErrors = new Dictionary<string, List<string>>();
             if (string.IsNullOrWhiteSpace(request.Username))
             {
-                validationErrors["username"] = "Username is required.";
+                validationErrors["username"] = new List<string> { "Username is required." };
             }
 
             if (string.IsNullOrWhiteSpace(request.Password))
             {
-                validationErrors["password"] = "Password is required.";
+                validationErrors["password"] = new List<string> { "Password is required." };
+            }
+
+            if(!string.IsNullOrWhiteSpace(request.Password) && request.ConfirmPassword != request.Password)
+            {
+                validationErrors["confirmPassword"] = new List<string> { "Passwords do not match." };
             }
 
             if(validationErrors.Count > 0)
             {
-                return BadRequest(new { Title = "Validation Error", Errors = validationErrors });
+                return BadRequest(new { Message = "Validation Error", Errors = validationErrors });
             }
 
             var sql = @"
@@ -56,6 +61,6 @@ namespace WebApi.Controllers.UserHandler
             return CreatedAtAction(nameof(Handle), new { id = newId }, newUser);
         }
 
-        public record CreateUserRequest(string Username, string Password);
+        public record CreateUserRequest(string Username, string Password, string ConfirmPassword);
     }
 }

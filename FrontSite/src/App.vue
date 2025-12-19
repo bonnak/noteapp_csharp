@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import HeaderNav from './components/HeaderNav.vue'
 </script>
 
 <template>
-  
-  <RouterView />
+  <div class="h-full flex flex-col flex-grow lg:pl-72">
+    <HeaderNav />
+
+    <RouterView />
+  </div>
 </template>
