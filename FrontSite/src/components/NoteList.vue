@@ -11,9 +11,11 @@ interface NoteListResponse {
 
 const noteStore = useNoteStore()
 const auth = useAuthStore()
-
 const waiting = ref(true)
 const errMessage = ref<string | null>(null)
+const emit = defineEmits<{
+  (e: 'edit-note', noteId: number): void
+}>()
 
 async function fetchNotes() {
   waiting.value = true
@@ -43,6 +45,10 @@ async function fetchNotes() {
 onMounted(() => {
   fetchNotes()
 })
+
+function editNote(note: Note) {
+  emit('edit-note', note.id)
+}
 </script>
 
 <template>
@@ -80,7 +86,9 @@ onMounted(() => {
           <span>{{ new Date(note.createdAt).toLocaleDateString() }}</span>
 
           <div class="space-x-2">
-            <button class="text-teal-500 hover:text-teal-700 font-medium">Edit</button>
+            <button class="text-teal-500 hover:text-teal-700 font-medium" @click="editNote(note)">
+              Edit
+            </button>
           </div>
         </div>
       </div>

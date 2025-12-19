@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useNoteStore, type Note } from '@/stores/note'
 import { useAuthStore } from '@/stores/auth'
 
@@ -12,23 +12,54 @@ interface NoteResponse {
 const noteStore = useNoteStore()
 const auth = useAuthStore()
 
+const props = defineProps<{
+  noteId: number
+}>()
+
+const fetching = ref(false)
 const waiting = ref(false)
 const errMessage = ref<string | null>(null)
 const inputErrors = ref<Record<string, string[]>>({})
 const title = ref('')
 const content = ref('')
 const emit = defineEmits<{
-  (e: 'note-created'): void
+  (e: 'note-edited'): void
 }>()
 
-async function handleCreateNote() {
+async function fetchNote() {
+  fetching.value = true
+  errMessage.value = null
+
+  try {
+    const response = await fetch(`${API_URL}/notes/${props.noteId}`, {
+      headers: {
+        Authorization: `Bearer ${auth.token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) throw new Error('Failed to load notes')
+
+    const data: NoteResponse = await response.json()
+    title.value = data.note.title
+    content.value = data.note.content || ''
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      errMessage.value = err.message
+    }
+  } finally {
+    fetching.value = false
+  }
+}
+
+async function handleEditNote() {
   waiting.value = true
   errMessage.value = null
   inputErrors.value = {}
 
   try {
-    const response = await fetch(`${API_URL}/notes`, {
-      method: 'POST',
+    const response = await fetch(`${API_URL}/notes/${props.noteId}`, {
+      method: 'PUT',
       headers: {
         Authorization: `Bearer ${auth.token}`,
         'Content-Type': 'application/json',
@@ -38,7 +69,7 @@ async function handleCreateNote() {
 
     if (!response.ok) {
       const errData = await response.json()
-      errMessage.value = errData.message || 'Create note failed'
+      errMessage.value = errData.message || 'Update note failed'
       if (errData.errors) {
         inputErrors.value = errData.errors
       }
@@ -47,22 +78,26 @@ async function handleCreateNote() {
     }
 
     const data: NoteResponse = await response.json()
-    noteStore.addNote(data.note)
+    noteStore.updateNote(props.noteId, data.note)
 
-    emit('note-created')
+    emit('note-edited')
   } catch (err: unknown) {
     if (err instanceof Error) {
       errMessage.value = err.message
     }
   }
 }
+
+onMounted(() => {
+  fetchNote()
+})
 </script>
 
 <template>
   <div class="mt-4">
     <p v-if="errMessage" class="text-red-500 text-sm">{{ errMessage }}</p>
 
-    <form @submit.prevent="handleCreateNote" class="space-y-6">
+    <form @submit.prevent="handleEditNote" class="space-y-6">
       <div>
         <label for="title" class="block text-sm/6 font-medium text-gray-900">Title</label>
         <div class="mt-2">
@@ -98,7 +133,7 @@ async function handleCreateNote() {
           :disabled="waiting"
           class="cursor-pointer flex w-full justify-center rounded-md bg-teal-600 px-3 py-2 text-sm/6 font-semibold text-white shadow-xs hover:bg-teal-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
         >
-          {{ waiting ? 'Creating...' : 'Create' }}
+          {{ waiting ? 'Updating...' : 'Update' }}
         </button>
       </div>
     </form>
