@@ -13,7 +13,7 @@ const noteStore = useNoteStore()
 const auth = useAuthStore()
 
 const props = defineProps<{
-  noteId: number
+  noteId: number | null
 }>()
 
 const fetching = ref(false)
@@ -78,7 +78,7 @@ async function handleEditNote() {
     }
 
     const data: NoteResponse = await response.json()
-    noteStore.updateNote(props.noteId, data.note)
+    noteStore.updateNote(props.noteId!, data.note)
 
     emit('note-edited')
   } catch (err: unknown) {

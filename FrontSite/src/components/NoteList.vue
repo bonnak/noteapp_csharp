@@ -152,7 +152,6 @@ function editNote(note: Note) {
 
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div
-        v-if="noteStore.notes.length > 0"
         v-for="note in noteStore.notes"
         :key="note.id"
         class="bg-white p-5 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200 flex flex-col"
@@ -181,7 +180,7 @@ function editNote(note: Note) {
           </div>
         </div>
       </div>
-      <div v-else class="col-span-full text-center text-gray-500 text-lg">No notes found.</div>
+      <div v-if="noteStore.notes.length == 0" class="col-span-full text-center text-gray-500 text-lg">No notes found.</div>
     </div>
   </div>
 </template>
