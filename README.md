@@ -10,6 +10,7 @@ dotnet run --project WebApi
 
 # Update and running front site
 ```bash
+cp .env.example .env
 npm install
 npm run dev
 ```
