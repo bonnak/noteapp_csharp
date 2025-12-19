@@ -23,20 +23,20 @@ namespace WebApi.Controllers.UserHandler
         [HttpPost(Name = "LoginUser")]
         public async Task<IActionResult> Handle([FromBody] LoginUserRequest request)
         {
-            var validationErrors = new Dictionary<string, string>();
+            var validationErrors = new Dictionary<string, List<string>>();
             if (string.IsNullOrWhiteSpace(request.Username))
             {
-                validationErrors["username"] = "Username is required.";
+                validationErrors["username"] = new List<string> { "Username is required." };
             }
 
             if (string.IsNullOrWhiteSpace(request.Password))
             {
-                validationErrors["password"] = "Password is required.";
+                validationErrors["password"] = new List<string> { "Password is required." };
             }
 
             if(validationErrors.Count > 0)
             {
-                return BadRequest(new { Title = "Validation Error", Errors = validationErrors });
+                return BadRequest(new { Message = "Validation Error", Errors = validationErrors });
             }
 
             var user = await _connection.QuerySingleOrDefaultAsync<User>(

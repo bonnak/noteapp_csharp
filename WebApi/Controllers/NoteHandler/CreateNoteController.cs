@@ -22,15 +22,15 @@ namespace WebApi.Controllers.NoteHandler
         [Authorize]
         public async Task<IActionResult> Handle([FromBody] CreateNoteRequest request)
         {
-            var validationErrors = new Dictionary<string, string>();
+            var validationErrors = new Dictionary<string, List<string>>();
             if (string.IsNullOrWhiteSpace(request.Title))
             {
-                validationErrors["title"] = "Title is required.";
+                validationErrors["title"] = new List<string> { "Title is required." };
             }
 
             if (validationErrors.Count > 0)
             {
-                return BadRequest(new { Title = "Validation Error", Errors = validationErrors });
+                return BadRequest(new { Message = "Validation Error", Errors = validationErrors });
             }
 
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
