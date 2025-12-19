@@ -27,6 +27,7 @@ namespace WebApi.Controllers.NoteHandler
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = int.Parse(userIdClaim.Value);
             var q = HttpContext.Request.Query["q"].ToString();
+            var sort = HttpContext.Request.Query["sort"].ToString();
 
             string sql = "SELECT Id, Title, Content, CreatedAt, UpdatedAt FROM Notes WHERE UserId = @UserId";
             object queryParams = new { UserId = userId };
@@ -36,7 +37,25 @@ namespace WebApi.Controllers.NoteHandler
                 sql += " AND Title LIKE @SearchQuery";
                 queryParams = new { UserId = userId, SearchQuery = $"%{q}%" };
             }
-            sql += " ORDER BY Id DESC";
+
+            switch (sort)
+            {
+                case "createdAtDesc":
+                    sql += " ORDER BY CreatedAt DESC";
+                    break;
+                case "createdAtAsc":
+                    sql += " ORDER BY CreatedAt ASC";
+                    break;
+                case "titleAsc":
+                    sql += " ORDER BY Title ASC";
+                    break;
+                case "titleDesc":
+                    sql += " ORDER BY Title DESC";
+                    break;
+                default:
+                    sql += " ORDER BY Id DESC";
+                    break;
+            }
             var notes = await _connection.QueryAsync<Note>(sql,
                 queryParams
             );

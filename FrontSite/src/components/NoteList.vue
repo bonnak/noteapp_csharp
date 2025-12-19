@@ -16,6 +16,7 @@ const errMessage = ref<string | null>(null)
 const emit = defineEmits<{
   (e: 'edit-note', noteId: number): void
 }>()
+const sortBy = ref<string>('createdAtDesc')
 const searchTerm = ref<string>('')
 let searchDebounce: number | undefined
 
@@ -28,6 +29,7 @@ async function fetchNotes() {
     if (searchTerm.value) {
       url.searchParams.append('q', searchTerm.value)
     }
+    url.searchParams.append('sort', sortBy.value)
 
     const response = await fetch(url, {
       headers: {
@@ -35,7 +37,6 @@ async function fetchNotes() {
         'Content-Type': 'application/json',
       },
     })
-
 
     if (!response.ok) throw new Error('Failed to load notes')
 
@@ -61,6 +62,13 @@ watch(searchTerm, () => {
   }, 500)
 })
 
+watch(sortBy, () => {
+  clearTimeout(searchDebounce)
+  searchDebounce = setTimeout(() => {
+    fetchNotes()
+  }, 100)
+})
+
 function editNote(note: Note) {
   emit('edit-note', note.id)
 }
@@ -72,7 +80,7 @@ function editNote(note: Note) {
       <h2 class="text-3xl font-bold text-gray-800">My Notes</h2>
     </div>
 
-    <div class="my-4">
+    <div class="my-4 flex">
       <form @submit.prevent="fetchNotes">
         <div class="w-60">
           <div class="mt-2 grid grid-cols-1">
@@ -101,6 +109,34 @@ function editNote(note: Note) {
           </div>
         </div>
       </form>
+      <div class="flex-grow"></div>
+      <div class="w-60 mt-4">
+        <label for="sortBy" class="sr-only">Sort by</label>
+        <div class="grid grid-cols-1">
+          <select
+            v-model="sortBy"
+            class="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-teal-600 sm:text-sm/6"
+          >
+            <option value="createdAtDesc">Newest</option>
+            <option value="createdAtAsc">Oldest</option>
+            <option value="titleAsc">Title (A-Z)</option>
+            <option value="titleDesc">Title (Z-A)</option>
+          </select>
+          <svg
+            class="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            aria-hidden="true"
+            data-slot="icon"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+        </div>
+      </div>
     </div>
 
     <div v-if="waiting" class="flex justify-center py-10">
@@ -115,7 +151,8 @@ function editNote(note: Note) {
     </div>
 
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-if="noteStore.notes.length > 0"
+      <div
+        v-if="noteStore.notes.length > 0"
         v-for="note in noteStore.notes"
         :key="note.id"
         class="bg-white p-5 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200 flex flex-col"
@@ -129,18 +166,22 @@ function editNote(note: Note) {
         <div
           class="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400"
         >
-          <span>{{ new Date(note.createdAt).toLocaleDateString() }} {{ new Date(note.createdAt).toLocaleTimeString() }}</span>
+          <span
+            >{{ new Date(note.createdAt).toLocaleDateString() }}
+            {{ new Date(note.createdAt).toLocaleTimeString() }}</span
+          >
 
           <div class="space-x-2">
-            <button class="cursor-pointer text-teal-500 hover:text-teal-700 font-medium" @click="editNote(note)">
+            <button
+              class="cursor-pointer text-teal-500 hover:text-teal-700 font-medium"
+              @click="editNote(note)"
+            >
               Edit
             </button>
           </div>
         </div>
       </div>
-      <div v-else class="col-span-full text-center text-gray-500 text-lg">
-        No notes found.
-      </div>
+      <div v-else class="col-span-full text-center text-gray-500 text-lg">No notes found.</div>
     </div>
   </div>
 </template>
