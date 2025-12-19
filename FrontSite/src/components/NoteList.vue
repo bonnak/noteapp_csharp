@@ -52,7 +52,7 @@ onMounted(() => {
     </div>
 
     <div v-if="waiting" class="flex justify-center py-10">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
     </div>
 
     <div
@@ -80,7 +80,7 @@ onMounted(() => {
           <span>{{ new Date(note.createdAt).toLocaleDateString() }}</span>
 
           <div class="space-x-2">
-            <button class="text-blue-500 hover:text-blue-700 font-medium">Edit</button>
+            <button class="text-teal-500 hover:text-teal-700 font-medium">Edit</button>
           </div>
         </div>
       </div>
