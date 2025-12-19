@@ -16,8 +16,13 @@ export const useNoteStore = defineStore('note', () => {
     notes.value = newNotes
   }
 
+  function addNote(newNote: Note) {
+    notes.value = [newNote, ...notes.value]
+  }
+
   return {
     notes,
     setNotes,
+    addNote,
   }
 })
